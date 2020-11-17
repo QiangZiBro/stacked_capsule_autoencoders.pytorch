@@ -1,0 +1,8 @@
+matplotlib
+monty
+nose
+numpy
+pandas
+torch==1.7.0
+torchvision==0.8.1
+
