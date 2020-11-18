@@ -22,7 +22,7 @@ There are also some other pytorch implementations such as [this](https://github.
 - [ ] possible visulization for  CCAE and SCAE
 
 ## Installation
-Based on pytorch 1.7 but you can use it older than this version, recommend 1.2~1.7.
+Based on pytorch 1.7 but sure you can use  older  version, 1.2~1.7 recommended.
 ```bash
 git clone https://github.com/QiangZiBro/stacked_capsule_autoencoders.pytorch
 pip install requirements.txt
