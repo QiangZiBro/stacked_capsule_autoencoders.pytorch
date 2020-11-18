@@ -25,7 +25,7 @@ import torch.utils.data as data
 from monty.collections import AttrDict
 from base import BaseDataLoader
 
-class CCAE_Dataloaser(BaseDataLoader):
+class CCAE_Dataloader(BaseDataLoader):
     def __init__(self,
             # for dataloader
             batch_size,
@@ -72,6 +72,9 @@ class CCAE_Dataset(data.Dataset):
         self.rotation_percent = rotation_percent
         self.which_patterns = which_patterns
         self.drop_prob = drop_prob
+
+    def __len__(self):
+        return 10000
     def __getitem__(self, item):
         data = create_numpy(
             1,

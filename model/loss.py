@@ -28,7 +28,7 @@ def ccae_loss(res_dict, target, epsilon = 1e-6):
 
     standard_deviation = epsilon + standard_deviation[Ellipsis, None]
     mu = ov_matrix @ op_matrix # (B, n_objects, n_votes, dim_input,1)
-    identity = torch.eye(dim_input).repeat(B, n_objects, n_votes, 1, 1)
+    identity = torch.eye(dim_input).repeat(B, n_objects, n_votes, 1, 1).to(standard_deviation.device)
     sigma = identity * (1/standard_deviation) # (B, n_objects, n_votes, dim_input,dim_input)
 
     # (B, k, n_objects, n_votes)
@@ -36,7 +36,6 @@ def ccae_loss(res_dict, target, epsilon = 1e-6):
 
 
     log_likelihood = torch.log(gaussian_likelihood.sum((1,2,3))).sum()
-    print(gaussian_likelihood.sum((1,2,3)))
     gaussian_likelihood = gaussian_likelihood.sum()
     res_dict.likelihood = -gaussian_likelihood
     res_dict.log_likelihood = -log_likelihood

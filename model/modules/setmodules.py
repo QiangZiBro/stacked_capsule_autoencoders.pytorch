@@ -4,6 +4,33 @@ import torch.nn.functional as F
 import math
 
 #Set transformer code credits https://github.com/juho-lee/set_transformer
+class Multihead_Attention(nn.Module):
+    def __init__(self, dim_Q, dim_K, dim_V, num_heads):
+        """
+        Note:for simplification:
+            d_q = d_v = d
+            d_{q}^{M} = d_{v}^{M} = d/h
+
+        Args:
+            dim_Q: Input Q dimension
+            dim_K: Input K dimension
+            dim_V: Output dimension
+            num_heads:
+        """
+        super().__init__()
+
+    def forward(self, Q, K, V):
+        """
+        Multi head forward
+        Args:
+            Q:
+            K:
+            V:
+
+        Returns:
+
+        """
+        raise NotImplemented
 
 class MAB(nn.Module):
     def __init__(self, dim_Q, dim_K, dim_V, num_heads, ln=False):
