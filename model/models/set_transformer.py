@@ -8,7 +8,7 @@ class SetTransformer(BaseModel):
     """
 
     def __init__(self, dim_input, num_outputs, dim_output,
-            num_inds=32, dim_hidden=128, num_heads=4, ln=False):
+            num_inds=32, dim_hidden=128, num_heads=4, ln=True):
         """Set Transformer, An autoencoder model dealing with set data
 
         Input set X with N elements, each `dim_input` dimensions, output

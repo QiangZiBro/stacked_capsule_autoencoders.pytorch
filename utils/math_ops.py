@@ -1,9 +1,10 @@
 import torch
 import math
+import torch.nn.functional as F
 
 class GuassianMixture(object):
     """
-    GMM for object capsules
+    GMM for part capsules
     """
     def __init__(self, mu, sigma):
         """
@@ -26,8 +27,8 @@ class GuassianMixture(object):
         self.mu = mu
         self.sigma_inv = sigma.inverse()
         D = self.sigma.shape[-1]
-        conv_det = torch.det(sigma) # (B, 1, n_objects, n_votes)
-        self.multiplier = 1/( (2*math.pi)**(D/2) * conv_det.sqrt())[...,None,None]
+        sigma_det = torch.det(sigma) # (B, 1, n_objects, n_votes)
+        self.multiplier = 1/( (2*math.pi)**(D/2) * sigma_det.sqrt())[...,None,None]
 
 
 
@@ -65,8 +66,12 @@ class GuassianMixture(object):
             # (B, 1, n_objects, n_votes, 1, 1)
             part_presence = part_presence[:,None,...,None]
 
-            object_presence[object_presence<0]=1e-6
-            part_presence[part_presence<0]=1e-6
+            object_presence = torch.abs(object_presence)+1e-6
+            part_presence = torch.abs(part_presence)+1e-6
+            # object_presence = F.relu(object_presence)+1e-6
+            # part_presence = F.relu(part_presence)+1e-6
+            # object_presence[object_presence<0]=1e-6
+            # part_presence[part_presence<0]=1e-6
             denominator = object_presence.sum(dim=2,keepdim=True)*part_presence.sum(dim=3,keepdim=True)
 
             exp_result = (object_presence*part_presence/denominator)*exp_result
