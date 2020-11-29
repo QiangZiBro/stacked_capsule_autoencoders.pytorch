@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
-from data_loader.modelnet40  import ModelFetcher
+from data_loader.modelnet40 import ModelFetcher
 from model.modules.setmodules import ISAB, PMA, SAB
 
 

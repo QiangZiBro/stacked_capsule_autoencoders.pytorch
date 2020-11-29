@@ -16,10 +16,10 @@ np.random.seed(SEED)
 
 
 def main(config):
-    logger = config.get_logger('train')
+    logger = config.get_logger("train")
 
     # setup data_loader instances
-    data_loader = config.init_obj('data_loader', module_data)
+    data_loader = config.init_obj("data_loader", module_data)
     valid_data_loader = data_loader.split_validation()
 
     # build model architecture, then print to console
@@ -33,31 +33,53 @@ def main(config):
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     optimizer = makeOptimizer(config, model)
 
-    lr_scheduler = config.init_obj('lr_scheduler', torch.optim.lr_scheduler, optimizer)
+    lr_scheduler = config.init_obj("lr_scheduler", torch.optim.lr_scheduler, optimizer)
 
-    trainer = Trainer(model, criterion, metrics, optimizer,
-                      config=config,
-                      data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
-                      lr_scheduler=lr_scheduler)
+    trainer = Trainer(
+        model,
+        criterion,
+        metrics,
+        optimizer,
+        config=config,
+        data_loader=data_loader,
+        valid_data_loader=valid_data_loader,
+        lr_scheduler=lr_scheduler,
+    )
 
     trainer.train()
 
 
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='PyTorch Template')
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default: None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to latest checkpoint (default: None)')
-    args.add_argument('-d', '--device', default=None, type=str,
-                      help='indices of GPUs to enable (default: all)')
+if __name__ == "__main__":
+    args = argparse.ArgumentParser(description="PyTorch Template")
+    args.add_argument(
+        "-c",
+        "--config",
+        default=None,
+        type=str,
+        help="config file path (default: None)",
+    )
+    args.add_argument(
+        "-r",
+        "--resume",
+        default=None,
+        type=str,
+        help="path to latest checkpoint (default: None)",
+    )
+    args.add_argument(
+        "-d",
+        "--device",
+        default=None,
+        type=str,
+        help="indices of GPUs to enable (default: all)",
+    )
 
     # custom cli options to modify configuration from default values given in json file.
-    CustomArgs = collections.namedtuple('CustomArgs', 'flags type target')
+    CustomArgs = collections.namedtuple("CustomArgs", "flags type target")
     options = [
-        CustomArgs(['--lr', '--learning_rate'], type=float, target='optimizer;args;lr'),
-        CustomArgs(['--bs', '--batch_size'], type=int, target='data_loader;args;batch_size')
+        CustomArgs(["--lr", "--learning_rate"], type=float, target="optimizer;args;lr"),
+        CustomArgs(
+            ["--bs", "--batch_size"], type=int, target="data_loader;args;batch_size"
+        ),
     ]
     config = ConfigParser.from_args(args, options)
     main(config)

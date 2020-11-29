@@ -15,18 +15,18 @@ __all__ = ["makeModel", "makeLoss", "makeMetrics", "makeOptimizer"]
 
 
 def makeModel(config):
-    return config.init_obj('arch', module_models)
+    return config.init_obj("arch", module_models)
 
 
 def makeLoss(config):
-    return getattr(module_loss, config['loss'])
+    return getattr(module_loss, config["loss"])
 
 
 def makeMetrics(config):
-    return [getattr(module_metric, met) for met in config['metrics']]
+    return [getattr(module_metric, met) for met in config["metrics"]]
 
 
 def makeOptimizer(config, model):
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj('optimizer', torch.optim, trainable_params)
+    optimizer = config.init_obj("optimizer", torch.optim, trainable_params)
     return optimizer

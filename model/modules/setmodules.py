@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
-#Set transformer code credits https://github.com/juho-lee/set_transformer
+# Set transformer code credits https://github.com/juho-lee/set_transformer
 class Multihead_Attention(nn.Module):
     def __init__(self, dim_Q, dim_K, dim_V, num_heads):
         """
@@ -32,6 +32,7 @@ class Multihead_Attention(nn.Module):
         """
         raise NotImplemented
 
+
 class MAB(nn.Module):
     def __init__(self, dim_Q, dim_K, dim_V, num_heads, ln=False):
         super(MAB, self).__init__()
@@ -54,12 +55,13 @@ class MAB(nn.Module):
         K_ = torch.cat(K.split(dim_split, 2), 0)
         V_ = torch.cat(V.split(dim_split, 2), 0)
 
-        A = torch.softmax(Q_.bmm(K_.transpose(1,2))/math.sqrt(self.dim_V), 2)
+        A = torch.softmax(Q_.bmm(K_.transpose(1, 2)) / math.sqrt(self.dim_V), 2)
         O = torch.cat((Q_ + A.bmm(V_)).split(Q.size(0), 0), 2)
-        O = O if getattr(self, 'ln0', None) is None else self.ln0(O)
+        O = O if getattr(self, "ln0", None) is None else self.ln0(O)
         O = O + F.relu(self.fc_o(O))
-        O = O if getattr(self, 'ln1', None) is None else self.ln1(O)
+        O = O if getattr(self, "ln1", None) is None else self.ln1(O)
         return O
+
 
 class SAB(nn.Module):
     def __init__(self, dim_in, dim_out, num_heads, ln=False):
@@ -68,6 +70,7 @@ class SAB(nn.Module):
 
     def forward(self, X):
         return self.mab(X, X)
+
 
 class ISAB(nn.Module):
     def __init__(self, dim_in, dim_out, num_heads, num_inds, ln=False):
@@ -80,6 +83,7 @@ class ISAB(nn.Module):
     def forward(self, X):
         H = self.mab0(self.I.repeat(X.size(0), 1, 1), X)
         return self.mab1(X, H)
+
 
 class PMA(nn.Module):
     def __init__(self, dim, num_heads, num_seeds, ln=False):

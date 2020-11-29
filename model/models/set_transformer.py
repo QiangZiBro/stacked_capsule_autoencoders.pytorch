@@ -1,14 +1,21 @@
 import torch.nn as nn
 from base import BaseModel
-from model.modules.setmodules import ISAB,SAB,PMA
+from model.modules.setmodules import ISAB, SAB, PMA
 
 
 class SetTransformer(BaseModel):
-    """
-    """
+    """"""
 
-    def __init__(self, dim_input, num_outputs, dim_output,
-            num_inds=32, dim_hidden=128, num_heads=4, ln=True):
+    def __init__(
+        self,
+        dim_input,
+        num_outputs,
+        dim_output,
+        num_inds=32,
+        dim_hidden=128,
+        num_heads=4,
+        ln=True,
+    ):
         """Set Transformer, An autoencoder model dealing with set data
 
         Input set X with N elements, each `dim_input` dimensions, output
@@ -34,13 +41,15 @@ class SetTransformer(BaseModel):
         """
         super(SetTransformer, self).__init__()
         self.enc = nn.Sequential(
-                ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),
-                ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln))
+            ISAB(dim_input, dim_hidden, num_heads, num_inds, ln=ln),
+            ISAB(dim_hidden, dim_hidden, num_heads, num_inds, ln=ln),
+        )
         self.dec = nn.Sequential(
-                PMA(dim_hidden, num_heads, num_outputs, ln=ln),
-                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
-                SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
-                nn.Linear(dim_hidden, dim_output))
+            PMA(dim_hidden, num_heads, num_outputs, ln=ln),
+            SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
+            SAB(dim_hidden, dim_hidden, num_heads, ln=ln),
+            nn.Linear(dim_hidden, dim_output),
+        )
 
     def forward(self, X):
         """

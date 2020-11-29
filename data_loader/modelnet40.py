@@ -35,17 +35,24 @@ def standardize(x):
 
 
 class ModelFetcher(object):
-    def __init__(self, fname, batch_size, down_sample=10, do_standardize=True, do_augmentation=False):
+    def __init__(
+        self,
+        fname,
+        batch_size,
+        down_sample=10,
+        do_standardize=True,
+        do_augmentation=False,
+    ):
 
         self.fname = fname
         self.batch_size = batch_size
         self.down_sample = down_sample
 
-        with h5py.File(fname, 'r') as f:
-            self._train_data = np.array(f['tr_cloud'])
-            self._train_label = np.array(f['tr_labels'])
-            self._test_data = np.array(f['test_cloud'])
-            self._test_label = np.array(f['test_labels'])
+        with h5py.File(fname, "r") as f:
+            self._train_data = np.array(f["tr_cloud"])
+            self._train_label = np.array(f["tr_labels"])
+            self._test_data = np.array(f["test_cloud"])
+            self._test_label = np.array(f["test_labels"])
 
         self.num_classes = np.max(self._train_label) + 1
 
@@ -53,13 +60,18 @@ class ModelFetcher(object):
         self.num_test_batches = len(self._test_data) // self.batch_size
 
         self.prep1 = standardize if do_standardize else lambda x: x
-        self.prep2 = (lambda x: augment(self.prep1(x))) if do_augmentation else self.prep1
+        self.prep2 = (
+            (lambda x: augment(self.prep1(x))) if do_augmentation else self.prep1
+        )
 
-        assert len(self._train_data) > self.batch_size, \
-            'Batch size larger than number of training examples'
+        assert (
+            len(self._train_data) > self.batch_size
+        ), "Batch size larger than number of training examples"
 
         # select the subset of points to use throughout beforehand
-        self.perm = np.random.permutation(self._train_data.shape[1])[::self.down_sample]
+        self.perm = np.random.permutation(self._train_data.shape[1])[
+            :: self.down_sample
+        ]
 
     def train_data(self):
         rng_state = np.random.get_state()
@@ -75,7 +87,9 @@ class ModelFetcher(object):
         perm = self.perm
         batch_card = len(perm) * np.ones(self.batch_size, dtype=np.int32)
         while end < N:
-            yield self.prep2(self._train_data[start:end, perm]), batch_card, self._train_label[start:end]
+            yield self.prep2(
+                self._train_data[start:end, perm]
+            ), batch_card, self._train_label[start:end]
             start = end
             end += self.batch_size
 
@@ -86,8 +100,12 @@ class ModelFetcher(object):
         start = 0
         end = self.batch_size
         N = len(self._test_data)
-        batch_card = (self._train_data.shape[1] // self.down_sample) * np.ones(self.batch_size, dtype=np.int32)
+        batch_card = (self._train_data.shape[1] // self.down_sample) * np.ones(
+            self.batch_size, dtype=np.int32
+        )
         while end < N:
-            yield self.prep1(self._test_data[start:end, 1::self.down_sample]), batch_card, self._test_label[start:end]
+            yield self.prep1(
+                self._test_data[start:end, 1 :: self.down_sample]
+            ), batch_card, self._test_label[start:end]
             start = end
             end += self.batch_size

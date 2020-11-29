@@ -1,11 +1,11 @@
 import torch
-from model.models.ccae import CCAE, ConstellationEncoder,ConstellationDecoder
+from model.models.ccae import CCAE, ConstellationEncoder, ConstellationDecoder
 
 
 def test_ccae_forward():
     B = 4
     k = 11  # number of input set
-    dim_input = 2 # 2 for 2D point
+    dim_input = 2  # 2 for 2D point
     dim_speical_features = 16
     n_votes = 4
     n_objects = 3
@@ -27,7 +27,9 @@ def test_ccae_forward():
     assert part_presence.shape == (B, n_objects, n_votes, 1)
     assert object_presence.shape == (B, n_objects, 1)
 
-    return decoded_dict,x
+    return decoded_dict, x
+
+
 def test_encoder_forward():
     B = 100
     k = 11
@@ -43,7 +45,7 @@ def test_encoder_forward():
     special_features = encoded_dict.special_features
     object_presence = encoded_dict.object_presence
 
-    assert ov_matrix.shape == (B, n_objects, dim_input,  dim_input)
+    assert ov_matrix.shape == (B, n_objects, dim_input, dim_input)
     assert special_features.shape == (B, n_objects, dim_speical_features)
     assert object_presence.shape == (B, n_objects, 1)
 

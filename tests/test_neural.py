@@ -1,5 +1,5 @@
 import torch
-from model.modules.neural import BatchLinear,BatchMLP
+from model.modules.neural import BatchLinear, BatchMLP
 
 
 def test_batch_linear_forward():

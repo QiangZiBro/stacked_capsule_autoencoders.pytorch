@@ -7,8 +7,9 @@ from torch import nn
 from base import BaseModel
 from monty.collections import AttrDict
 
+
 class CCAE(BaseModel):
-    """ Constellation capsule auto-encoder
+    """Constellation capsule auto-encoder
 
     Input a point set, encode the set with Set Transformer to
     object capsules, and then decode to parts.
@@ -24,12 +25,10 @@ class CCAE(BaseModel):
         presence: scalar
 
     """
-    def __init__(self,
-                 dim_input,
-                 n_objects=3,
-                 dim_speical_features=16,
-                 n_votes=4,
-                 **kargs):
+
+    def __init__(
+        self, dim_input, n_objects=3, dim_speical_features=16, n_votes=4, **kargs
+    ):
         """
 
         Args:
@@ -42,7 +41,9 @@ class CCAE(BaseModel):
         super().__init__()
 
         self.encoder = ConstellationEncoder(dim_input, n_objects, dim_speical_features)
-        self.decoder = ConstellationDecoder(dim_input, n_objects, dim_speical_features, n_votes)
+        self.decoder = ConstellationDecoder(
+            dim_input, n_objects, dim_speical_features, n_votes
+        )
 
     def forward(self, x):
         """
@@ -62,11 +63,13 @@ class CCAE(BaseModel):
         res.dim_input = self.encoder.dim_input
         return res
 
+
 class ConstellationEncoder(BaseModel):
     """
     Input a point set, encode the set with Set Transformer to
     object capsules
     """
+
     def __init__(self, dim_input, n_objects, dim_speical_features, **kwargs):
         super().__init__()
         self.dim_input = dim_input
@@ -76,7 +79,7 @@ class ConstellationEncoder(BaseModel):
         self.set_transformer = SetTransformer(
             dim_input=dim_input,
             num_outputs=n_objects,
-            dim_output=dim_input**2+dim_speical_features+1,
+            dim_output=dim_input ** 2 + dim_speical_features + 1,
             **kwargs
         )
 
@@ -92,18 +95,24 @@ class ConstellationEncoder(BaseModel):
             presence: scalar: (B, n_objects, 1)
         """
         B = x.shape[0]
-        objects = self.set_transformer(x)  # (B, n_objects, dim_input**2+dim_speical_features+1)
-        splits = [self.dim_input**2,self.dim_input**2+self.dim_speical_features]
+        objects = self.set_transformer(
+            x
+        )  # (B, n_objects, dim_input**2+dim_speical_features+1)
+        splits = [self.dim_input ** 2, self.dim_input ** 2 + self.dim_speical_features]
 
-        ov_matrix, special_features, presence = objects[:,:,:splits[0]],\
-                                                 objects[:,:,splits[0]:splits[1]],\
-                                                 objects[:,:,splits[1]:]
+        ov_matrix, special_features, presence = (
+            objects[:, :, : splits[0]],
+            objects[:, :, splits[0] : splits[1]],
+            objects[:, :, splits[1] :],
+        )
 
         ov_matrix = ov_matrix.reshape(B, self.n_objects, self.dim_input, self.dim_input)
         presence = F.softmax(presence, dim=1)
-        return AttrDict(ov_matrix=ov_matrix,
-                        special_features=special_features,
-                        object_presence=presence)
+        return AttrDict(
+            ov_matrix=ov_matrix,
+            special_features=special_features,
+            object_presence=presence,
+        )
 
 
 class ConstellationDecoder(BaseModel):
@@ -116,6 +125,7 @@ class ConstellationDecoder(BaseModel):
     https://github.com/google-research/google-research/blob/8c9034fb956e0fda9a450d9cdacef2e70a9c9564/stacked_capsule_autoencoders/capsules/neural.py#L98-L130
     So we also implemented a batch mlp here
     """
+
     def __init__(self, dim_input, n_objects, dim_speical_features, n_votes, **kwargs):
         """
         Args:
@@ -130,8 +140,9 @@ class ConstellationDecoder(BaseModel):
         self.n_votes = n_votes
         self.dim_input = dim_input
 
-
-        self.bmlp = BatchMLP(dim_speical_features, n_votes*(dim_input+1+1), n_objects, hidden)
+        self.bmlp = BatchMLP(
+            dim_speical_features, n_votes * (dim_input + 1 + 1), n_objects, hidden
+        )
 
     def forward(self, x):
         """
@@ -147,18 +158,19 @@ class ConstellationDecoder(BaseModel):
         B, n_objects, dim_speical_features = x.shape
         assert self.dim_speical_features == dim_speical_features
 
-
-        x = self.bmlp(x) # (B, n_objects, n_votes*(dim_input+1+1))
+        x = self.bmlp(x)  # (B, n_objects, n_votes*(dim_input+1+1))
         x_chunk = x.chunk(self.n_votes, dim=-1)
-        x_object_part = torch.stack(x_chunk, dim=2) # (B, n_objects, n_votes, (dim_input+1+1))
+        x_object_part = torch.stack(
+            x_chunk, dim=2
+        )  # (B, n_objects, n_votes, (dim_input+1+1))
 
-        splits = [self.dim_input, self.dim_input+1]
-        op_matrix = x_object_part[:,:,:,:splits[0]]
-        standard_deviation = x_object_part[:,:,:,splits[0]:splits[1]]
-        presence = x_object_part[:,:,:,splits[1]:]
+        splits = [self.dim_input, self.dim_input + 1]
+        op_matrix = x_object_part[:, :, :, : splits[0]]
+        standard_deviation = x_object_part[:, :, :, splits[0] : splits[1]]
+        presence = x_object_part[:, :, :, splits[1] :]
         presence = F.softmax(presence, dim=2)
         return AttrDict(
             op_matrix=op_matrix,
             standard_deviation=standard_deviation,
-            part_presence=presence
+            part_presence=presence,
         )
