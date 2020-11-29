@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 from torch import nn
 from base import BaseModel
 from monty.collections import AttrDict
@@ -30,12 +31,19 @@ class BatchMLP(BaseModel):
     """
     Applies k independent MLPs on k inputs
     """
-    def __init__(self, in_channels, out_channels, k, hidden):
+    def __init__(self, in_channels, out_channels, k, hidden, activation=nn.ReLU,activate_final=False):
         super().__init__()
-        self.bmlp = nn.Sequential(*[
-            BatchLinear(_in, _out, k)
-            for _in, _out in zip([in_channels] + hidden, hidden + [out_channels])
-        ])
+
+        blinears = []
+        LAST = len([in_channels] + hidden)-1
+        for i, (_in, _out) in enumerate(zip([in_channels] + hidden, hidden + [out_channels])):
+            blinears.append(BatchLinear(_in, _out, k))
+            if i == LAST and activate_final:
+                blinears.append(activation())
+            else:
+                blinears.append(activation())
+
+        self.bmlp = nn.Sequential(*blinears)
 
     def forward(self, x):
         """
