@@ -6,6 +6,7 @@ from ..modules.neural import BatchMLP
 from torch import nn
 from base import BaseModel
 from monty.collections import AttrDict
+from model.loss import ccae_loss
 
 
 class CCAE(BaseModel):
@@ -61,7 +62,32 @@ class CCAE(BaseModel):
         res.update(decoded_dict)
         # add some useful infomation to result dict
         res.dim_input = self.encoder.dim_input
+
+        res = ccae_loss(res_dict=res, target=x)
+        res = self._unsupervised_classification(res_dict=res)
+
         return res
+
+    def _unsupervised_classification(self, res_dict):
+        """
+        $$k^{\star}=\arg \max _{k} a_{k} a_{k, n} p\left(\mathbf{x}_{m} \mid k, n\right)$$
+        Args:
+            res_dict:
+
+        Returns:
+
+        """
+        # (B, 1, n_objects, 1)
+        object_presence = res_dict.object_presence[:, None, ...]
+        # (B, 1, n_objects, n_votes)
+        part_presence = res_dict.part_presence[:, None, ...].squeeze(-1)
+        # (B, M, n_objects, n_votes)
+        likelihood = res_dict.likelihood
+        a_k_n_times_p = (part_presence * likelihood).max(dim=-1, keepdim=True)[0]
+        expr = object_presence * a_k_n_times_p
+        winners = expr.max(dim=-2)[1].squeeze(-1)
+        res_dict.winners = winners
+        return res_dict
 
 
 class ConstellationEncoder(BaseModel):
@@ -89,7 +115,7 @@ class ConstellationEncoder(BaseModel):
         Args:
             x: a set with (B, M, dim_input)
 
-        Returns:
+        Returns
             OV matrix: (B, n_objects, dim_input, dim_input)
             special features: (B, n_objects, dim_speical_features)
             presence: scalar: (B, n_objects, 1)

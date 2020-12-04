@@ -44,9 +44,8 @@ def ccae_loss(res_dict, target, epsilon=1e-6):
         target, object_presence=object_presence, part_presence=part_presence
     )
     log_likelihood = torch.log(likelihood.sum((1, 2, 3))).mean()
-    likelihood = likelihood.mean()
-    res_dict.likelihood = likelihood
 
-    res_dict.log_likelihood = -log_likelihood
+    res_dict.likelihood = likelihood  # data distribution predicted
+    res_dict.log_likelihood = -log_likelihood  # loss
 
     return res_dict

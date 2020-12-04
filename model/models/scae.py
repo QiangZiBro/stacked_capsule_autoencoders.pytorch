@@ -73,14 +73,16 @@ class PCAE(nn.Module):
         B, _, _, target_size = x.size()
         transformed_templates = []
         for i in range(self.num_capsules):
-            transformed_templates.append(F.grid_sample(
-                self.templates[i].repeat(B, 1, 1, 1).to(device),
-                # sce.to(device) could not transfrom self.templates to "cuda"
-                F.affine_grid(
-                    self.geometric_transform(x_m[:, i, :]),  # pose
-                    size=[B, 1, target_size, target_size],  # size
-                ),
-            ))
+            transformed_templates.append(
+                F.grid_sample(
+                    self.templates[i].repeat(B, 1, 1, 1).to(device),
+                    # sce.to(device) could not transfrom self.templates to "cuda"
+                    F.affine_grid(
+                        self.geometric_transform(x_m[:, i, :]),  # pose
+                        size=[B, 1, target_size, target_size],  # size
+                    ),
+                )
+            )
         transformed_templates = torch.cat(transformed_templates, 1)
         mix_prob = self.soft_max(
             d_m * transformed_templates.view(*transformed_templates.size()[:2], -1)
