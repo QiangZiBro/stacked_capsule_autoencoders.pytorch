@@ -10,7 +10,7 @@ There are also some other pytorch implementations such as [this](https://github.
 [this](https://github.com/MuhammadMomin93/Stacked-Capsule-Autoencoders-PyTorch) and
 [this](https://github.com/Axquaris/StackedCapsuleAutoencoders).
 
-**[Notice]** This repo is still in progress.
+**[Notice]** This repo is still in progress, feel free to make the pytorch version better!
 ## Progress
 
 - [x] CCAE model
