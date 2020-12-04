@@ -10,16 +10,19 @@ There are also some other pytorch implementations such as [this](https://github.
 [this](https://github.com/MuhammadMomin93/Stacked-Capsule-Autoencoders-PyTorch) and
 [this](https://github.com/Axquaris/StackedCapsuleAutoencoders).
 
+**[Notice]** This repo is still in progress.
 ## Progress
+
 - [x] CCAE model
 - [x] CCAE loss stuff
 - [x] CCAE pytorch dataloader
-- [ ] CCAE training script
+- [x] CCAE training script
+- [x] Visualization for CCAE
+- [ ] eval script for CCAE
 - [ ] PCAE
 - [ ] OCAE
 - [ ] SCAE loss stuff
 - [ ] SCAE training script
-- [ ] possible visulization for  CCAE and SCAE
 
 ## Installation
 Based on pytorch 1.7 but sure you can use  older  version, 1.2~1.7 recommended.
@@ -29,6 +32,13 @@ pip install requirements.txt
 pip install requirements-dev.txt # for debug or coding quality stuff
 ```
 
+
+## CCAE experiment
+```bash
+# in project root directory:
+mkdir -p saved/imgs 
+python scripts/train_ccae.py
+```
 
 ## LICENSE
 MIT License
