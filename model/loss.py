@@ -40,12 +40,12 @@ def ccae_loss(res_dict, target, epsilon=1e-6):
     )  # (B, n_objects, n_votes, dim_input,dim_input)
 
     # (B, k, n_objects, n_votes)
-    gaussian_likelihood = gmm(mu, sigma).likelihood(
+    likelihood = gmm(mu, sigma).likelihood(
         target, object_presence=object_presence, part_presence=part_presence
     )
-    log_likelihood = torch.log(gaussian_likelihood.sum((1, 2, 3))).mean()
-    gaussian_likelihood = gaussian_likelihood.mean()
-    res_dict.likelihood = -gaussian_likelihood
+    log_likelihood = torch.log(likelihood.sum((1, 2, 3))).mean()
+    likelihood = likelihood.mean()
+    res_dict.likelihood = likelihood
 
     res_dict.log_likelihood = -log_likelihood
 
