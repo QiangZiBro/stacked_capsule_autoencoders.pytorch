@@ -4,6 +4,6 @@ nose
 numpy
 pandas
 tqdm
-torch==1.7.0
+torch==2.2.0
 torchvision==0.8.1
 
